@@ -3,7 +3,7 @@ import "./globals.css";
 import { COUPLE, SITE, WEDDING_DATE_LABEL } from "@/lib/wedding";
 
 const title = `${COUPLE.groom} & ${COUPLE.bride} · The Wedding Celebration`;
-const description = `Join us to celebrate the wedding of ${COUPLE.groom} and ${COUPLE.bride} on ${WEDDING_DATE_LABEL}. Schedule, venues, RSVP and blessings.`;
+const description = `Join us to celebrate the wedding of ${COUPLE.groom} and ${COUPLE.bride} on ${WEDDING_DATE_LABEL}. Schedule, venues and blessings.`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),

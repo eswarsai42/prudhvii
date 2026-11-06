@@ -2,25 +2,38 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { SITE } from "@/lib/wedding";
 
+const KEY = "rw-music";
+const LEVEL = 0.4; // audio-element volume at full level
+
 /**
- * Background music. Plays NEXT_PUBLIC_MUSIC_URL when provided, otherwise a soft
- * generated pad (Web Audio) so the sound toggle works without any audio asset.
- * Browsers only allow audio after a user gesture; `start` must be called from a click.
+ * One persistent soundtrack for the whole site (a single instance lives in ExperienceProvider).
+ * - Plays NEXT_PUBLIC_MUSIC_URL; with no file set, a soft generated pad is used so the toggle still works.
+ * - Starts only from a user gesture (Enter button / toggle). Never restarts on scroll.
+ * - The visitor's choice is remembered in localStorage.
+ * - `setVideoPlaying(true)` fades the music out while the teaser video plays and brings it back after,
+ *   unless the visitor turned the music off.
  */
 export function useAmbientMusic() {
-  const [on, setOn] = useState(false);
+  const [preferred, setPreferredState] = useState(true); // default ON until the visitor says otherwise
+  const [started, setStarted] = useState(false);          // audio unlocked by a gesture
+  const [videoPlaying, setVideoPlaying] = useState(false);
   const ctx = useRef<AudioContext | null>(null);
   const master = useRef<GainNode | null>(null);
   const el = useRef<HTMLAudioElement | null>(null);
-  const built = useRef(false);
+  const raf = useRef(0);
+
+  const playing = started && preferred && !videoPlaying;
+
+  useEffect(() => {
+    try { if (localStorage.getItem(KEY) === "off") setPreferredState(false); } catch {}
+  }, []);
 
   const build = useCallback(() => {
-    if (built.current) return;
-    built.current = true;
+    if (el.current || ctx.current) return; // single instance
     if (SITE.musicUrl) {
-      el.current = new Audio(SITE.musicUrl);
-      el.current.loop = true;
-      el.current.volume = 0.35;
+      const a = new Audio(SITE.musicUrl);
+      a.loop = true; a.volume = 0; a.preload = "auto";
+      el.current = a;
       return;
     }
     const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
@@ -42,21 +55,56 @@ export function useAmbientMusic() {
     ctx.current = c; master.current = g;
   }, []);
 
-  const setPlaying = useCallback(async (play: boolean) => {
-    try {
-      build();
-      if (el.current) { if (play) await el.current.play(); else el.current.pause(); }
-      if (ctx.current && master.current) {
-        if (play) await ctx.current.resume();
-        const t = ctx.current.currentTime;
-        master.current.gain.cancelScheduledValues(t);
-        master.current.gain.linearRampToValueAtTime(play ? 1 : 0, t + 1.5);
-      }
-      setOn(play);
-    } catch { setOn(false); }
-  }, [build]);
+  /** Fade to the wanted level whenever `playing` changes. */
+  useEffect(() => {
+    if (!started) return;
+    const fadeMs = playing ? 1800 : 1200;
+    if (ctx.current && master.current) {
+      const c = ctx.current, g = master.current;
+      if (playing) c.resume().catch(() => {});
+      const t = c.currentTime;
+      g.gain.cancelScheduledValues(t);
+      g.gain.setValueAtTime(g.gain.value, t);
+      g.gain.linearRampToValueAtTime(playing ? 1 : 0, t + fadeMs / 1000);
+    }
+    const a = el.current;
+    if (a) {
+      cancelAnimationFrame(raf.current);
+      if (playing && a.paused) a.play().catch(() => {});
+      const from = a.volume, to = playing ? LEVEL : 0, t0 = performance.now();
+      const step = (now: number) => {
+        const k = Math.min(1, (now - t0) / fadeMs);
+        a.volume = Math.max(0, Math.min(1, from + (to - from) * k));
+        if (k < 1) raf.current = requestAnimationFrame(step);
+        else if (!playing) a.pause();
+      };
+      raf.current = requestAnimationFrame(step);
+    }
+  }, [playing, started]);
 
-  const toggle = useCallback(() => setPlaying(!on), [on, setPlaying]);
-  useEffect(() => () => { ctx.current?.close(); el.current?.pause(); }, []);
-  return { on, toggle, setPlaying };
+  /** Must be called from a click/tap. */
+  const unlock = useCallback(() => {
+    build();
+    el.current?.play().then(() => { if (!playing && el.current) el.current.volume = 0; }).catch(() => {});
+    ctx.current?.resume().catch(() => {});
+    setStarted(true);
+  }, [build, playing]);
+
+  const savePref = (v: boolean) => { setPreferredState(v); try { localStorage.setItem(KEY, v ? "on" : "off"); } catch {} };
+
+  /** Called when the visitor enters the site: honours a saved "off". */
+  const startIfPreferred = useCallback(() => { if (preferred) unlock(); }, [preferred, unlock]);
+
+  const toggle = useCallback(() => {
+    if (playing) { savePref(false); return; }
+    savePref(true); unlock();
+  }, [playing, unlock]);
+
+  useEffect(() => () => {
+    cancelAnimationFrame(raf.current);
+    ctx.current?.close().catch(() => {}); ctx.current = null; master.current = null;
+    el.current?.pause(); el.current = null;
+  }, []);
+
+  return { playing, preferred, videoPlaying, toggle, startIfPreferred, setPreferred: savePref, setVideoPlaying };
 }

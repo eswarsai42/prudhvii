@@ -31,3 +31,17 @@ html.has-cursor, html.has-cursor * { cursor: none !important; }
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
   .film-grain { display: none; }
 }
+
+/* ---- Phase 2 additions ---- */
+.music-ring { animation: spin 6s linear infinite; }
+.music-bar { height: 30%; animation: bars 1s ease-in-out infinite; }
+@keyframes bars { 0%,100% { height: 25%; } 50% { height: 100%; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+.sweep-spin { animation: spin 7s linear infinite; }
+.pulse-ring { animation: pulsering 2.6s ease-out infinite; }
+@keyframes pulsering { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(1.9); opacity: 0; } }
+.shine::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(105deg, transparent 35%, rgba(255,236,170,.55) 50%, transparent 65%); transform: translateX(-120%); }
+.shine.shine-go::after { animation: shine 1.8s ease-out .3s 1 forwards; }
+.shine:hover::after { animation: shine 1.4s ease-out 1 forwards; }
+@keyframes shine { to { transform: translateX(120%); } }
+.letter-lines { background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 2.45rem, rgba(170,135,80,.22) 2.45rem, rgba(170,135,80,.22) calc(2.45rem + 1px)); }

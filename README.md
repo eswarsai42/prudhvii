@@ -6,17 +6,21 @@ Designed & developed by VEERLABS (https://veerlabs.vercel.app)
     cp .env.example .env.local   # fill in values
     npm run dev                  # http://localhost:3000
 
-## Supabase (RSVP + guestbook)
-1. Create a project, run `supabase/schema.sql` in the SQL editor (RLS on, no public policies).
-2. Put `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` / Vercel env vars. They are only read in `/api/*` routes, never sent to the browser.
-3. Set `ADMIN_PASSWORD`, then open `/admin` to approve, unpublish or delete guestbook wishes. RSVPs appear in the `rsvps` table.
+## Wedding Time Capsule (blessings by email)
+Follow `emailjs/SETUP.md`: create an EmailJS service + template (HTML in `emailjs/blessing-template.html`, recipient fixed in the template) and set the three `NEXT_PUBLIC_EMAILJS_*` variables.
+
+## Public guestbook wall (optional, Supabase)
+The older "Leave your blessings" wall still uses Supabase. Run `supabase/schema.sql`, set `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_PASSWORD`; moderate at `/admin`. Skip it and the wall simply shows a friendly "not available" note.
+
+## Music
+Put your mp3 in `public/audio/` and set `NEXT_PUBLIC_MUSIC_URL=/audio/your-file.mp3`. Without it a soft generated pad plays.
 
 ## Where to edit
 - `src/lib/events.ts` — all 11 events. Set `year` once confirmed (null = no year shown, no countdown/"Completed" badge). Feb 20 events are 2027; Engagement is 2026.
 - `src/lib/wedding.ts` — names, countdown target (Grand Wedding 10:00 PM IST), story copy, hotels / travel / contacts (empty until confirmed).
+- `src/lib/timeline.ts` — photo beside each event card (files in `public/images/timeline/`).
 - `src/lib/gallery.ts` — photos per collection. Five supplied photos are low-res (flagged `lowRes`).
 - `public/veerlabs-logo.svg` — placeholder mark; replace with the real VeerLabs logo.
-- `NEXT_PUBLIC_WHATSAPP_NUMBER` enables WhatsApp confirmation; `NEXT_PUBLIC_MUSIC_URL` swaps the generated ambient music for an mp3.
 
 ## Deploy
 Push to GitHub, import in Vercel, add the env vars. Fonts load from Google Fonts at runtime.

@@ -1,14 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, Volume2, VolumeX, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import { MusicToggle } from "./MusicToggle";
 import { NAV } from "@/lib/wedding";
 import { scrollToId } from "@/lib/lenis";
 import { cn } from "@/lib/utils";
 import { useExperience } from "./ExperienceProvider";
 
 export function Nav() {
-  const { music, introDone } = useExperience();
+  const { introDone } = useExperience();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("home");
@@ -60,10 +61,7 @@ export function Nav() {
             ))}
           </ul>
           <div className="flex items-center gap-2">
-            <button onClick={music.toggle} aria-pressed={music.on} aria-label={music.on ? "Turn music off" : "Turn music on"}
-              className="rounded-full border border-champagne/40 p-2.5 text-champagne transition hover:bg-champagne/10">
-              {music.on ? <Volume2 size={16} /> : <VolumeX size={16} />}
-            </button>
+            <MusicToggle />
             <button onClick={() => setOpen(true)} aria-label="Open menu" aria-expanded={open} className="rounded-full p-2.5 text-champagne lg:hidden"><Menu size={22} /></button>
           </div>
         </nav>

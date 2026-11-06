@@ -18,13 +18,12 @@ export function Intro() {
   const [progress, setProgress] = useState(0);
   const [lit, setLit] = useState(false);
   const [flap, setFlap] = useState(false);
-  const [soundWanted, setSoundWanted] = useState(false);
-
+  
   const enter = useCallback(() => {
-    if (soundWanted) music.setPlaying(true);
+    music.startIfPreferred();
     try { sessionStorage.setItem(SEEN, "1"); } catch {}
     finishIntro();
-  }, [soundWanted, music, finishIntro]);
+  }, [music, finishIntro]);
 
   const skip = useCallback(() => {
     try { sessionStorage.setItem(SEEN, "1"); } catch {}
@@ -84,11 +83,11 @@ export function Intro() {
 
           <div className="absolute right-4 top-4 z-10 flex items-center gap-3 sm:right-8 sm:top-8">
             <button
-              onClick={() => setSoundWanted((v) => !v)} aria-pressed={soundWanted}
+              onClick={() => music.setPreferred(!music.preferred)} aria-pressed={music.preferred}
               className="flex items-center gap-2 rounded-full border border-champagne/40 px-4 py-2 text-xs tracking-[0.2em] text-champagne transition hover:bg-champagne/10"
             >
-              {soundWanted ? <Volume2 size={14} /> : <VolumeX size={14} />}
-              {soundWanted ? "Music on" : "Music off"}
+              {music.preferred ? <Volume2 size={14} /> : <VolumeX size={14} />}
+              {music.preferred ? "Music on" : "Music off"}
             </button>
             <button onClick={skip} className="rounded-full px-4 py-2 text-xs tracking-[0.2em] text-ivory/70 transition hover:text-champagne">
               Skip

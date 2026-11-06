@@ -11,7 +11,6 @@ export const TIME_ZONE = "Asia/Kolkata";
 
 export const SITE = {
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
-  whatsapp: (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "").replace(/\D/g, ""),
   musicUrl: process.env.NEXT_PUBLIC_MUSIC_URL ?? "",
 };
 
@@ -46,5 +45,5 @@ export const NAV = [
   { id: "celebrations", label: "Celebrations" },
   { id: "gallery", label: "Gallery" },
   { id: "venues", label: "Venues" },
-  { id: "rsvp", label: "RSVP" },
+  { id: "time-capsule", label: "Time Capsule" },
 ];

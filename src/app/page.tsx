@@ -8,8 +8,10 @@ import { Story } from "@/components/Story";
 import { Schedule } from "@/components/Schedule";
 import { Countdown } from "@/components/Countdown";
 import { Gallery } from "@/components/Gallery";
+import { Instagram } from "@/components/Instagram";
 import { Venues } from "@/components/Venues";
-import { Rsvp } from "@/components/Rsvp";
+import { TimeCapsule } from "@/components/TimeCapsule";
+import { FirstChapter } from "@/components/FirstChapter";
 import { Guestbook } from "@/components/Guestbook";
 import { Closing } from "@/components/Closing";
 import { Footer } from "@/components/Footer";
@@ -25,11 +27,13 @@ export default function Page() {
       <main>
         <Hero />
         <Story />
+        <FirstChapter />
         <Schedule />
         <Countdown />
         <Gallery />
+        <Instagram/>
         <Venues />
-        <Rsvp />
+        <TimeCapsule />
         <Guestbook />
         <Closing />
       </main>
