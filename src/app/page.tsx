@@ -34,7 +34,6 @@ export default function Page() {
         <Instagram/>
         <Venues />
         <TimeCapsule />
-        <Guestbook />
         <Closing />
       </main>
       <Footer />
